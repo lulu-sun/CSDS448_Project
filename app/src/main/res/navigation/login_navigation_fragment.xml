@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/login_navigation_fragment"
+    app:startDestination="@id/pinLoginMainFragment">
+
+    <fragment
+        android:id="@+id/pinLoginMainFragment"
+        android:name="dev.lulu.csds448notesapp.PinLoginMainFragment"
+        android:label="fragment_pin_login_main"
+        tools:layout="@layout/fragment_pin_login_main" >
+        <action
+            android:id="@+id/action_pinLoginMainFragment_to_pinResetFragment"
+            app:destination="@id/pinResetFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/pinResetFragment"
+        android:name="dev.lulu.csds448notesapp.PinResetFragment"
+        android:label="fragment_pin_reset"
+        tools:layout="@layout/fragment_pin_reset" >
+        <action
+            android:id="@+id/action_pinResetFragment_to_pinLoginMainFragment"
+            app:destination="@id/pinLoginMainFragment" />
+    </fragment>
+</navigation>
