@@ -1,10 +1,13 @@
 package dev.lulu.csds448notesapp
 
+import android.os.Bundle
+import android.util.Log
 import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.navigation.Navigation
 
 import dev.lulu.csds448notesapp.placeholder.PlaceholderContent.PlaceholderItem
 import dev.lulu.csds448notesapp.databinding.FragmentNoteListBinding
@@ -45,6 +48,12 @@ class MyNoteRecyclerViewAdapter(
         RecyclerView.ViewHolder(binding.root) {
 //        val idView: TextView = binding.itemNumber
         val contentView: TextView = binding.content
+
+        init {
+            contentView.setOnClickListener{
+                Navigation.findNavController(contentView).navigate(R.id.action_noteListFragment_to_noteEditFragment)
+            }
+        }
 
         override fun toString(): String {
             return super.toString() + " '" + contentView.text + "'"
