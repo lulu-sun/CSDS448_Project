@@ -1,20 +1,22 @@
 package dev.lulu.csds448notesapp.noteModel
 
+import dev.lulu.csds448notesapp.NotesDatabase
+
 /*
 Class for the recycler view list. Mutable list of (class) "Note". Populate with the headers
 
  */
 
-class NoteModel{
+class NoteModel(){
     private val notes = mutableListOf<Note>()
-
-    constructor() {
-        // TODO: load all notes from sql database via content provider
-
-        for (i in 1 .. 25){
-            notes.add(Note("header$i", "body$i"))
-        }
-    }
+//
+//    constructor() {
+//        // TODO: load all notes from sql database via content provider
+//
+//        for (i in 1 .. 25){
+//            notes.add(Note("header$i", "body$i", 1))
+//        }
+//    }
 
     public fun getNotes() : List<Note> {
         // public function, "getter" for the notes

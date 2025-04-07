@@ -1,6 +1,7 @@
 package dev.lulu.csds448notesapp
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -8,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import dev.lulu.csds448notesapp.noteModel.Note
 import dev.lulu.csds448notesapp.noteModel.NoteModel
 import dev.lulu.csds448notesapp.placeholder.PlaceholderContent
 
@@ -17,7 +19,7 @@ import dev.lulu.csds448notesapp.placeholder.PlaceholderContent
 class NoteListFragment : Fragment() {
 
     private var columnCount = 1
-    private val model = NoteModel()
+    private var model = NoteModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,6 +34,25 @@ class NoteListFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_note_list_list, container, false)
+
+        // Get the database handler (NotesDatabase class)
+        val dbHandler = context?.let { NotesDatabase(it) }
+
+        if (dbHandler != null) {
+            // Get all the notes in the database
+            model = dbHandler.getAllNotes()
+        }
+
+        var success = ""
+        val handlerResult = dbHandler?.addNote("header", "note", model)
+        if (handlerResult != null) {
+            success = handlerResult.first.toString()
+        }
+
+        if (handlerResult != null) {
+            Log.d("Database check", success)
+        }
+
 
         // Set the adapter
         if (view is RecyclerView) {
