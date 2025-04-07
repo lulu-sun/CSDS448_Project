@@ -1,5 +1,6 @@
 package dev.lulu.csds448notesapp
 
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -8,7 +9,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
+import androidx.annotation.RequiresApi
 import androidx.navigation.Navigation
+import dev.lulu.csds448notesapp.encryption.encryptorMethods
 import dev.lulu.csds448notesapp.noteModel.Note
 
 // TODO: Rename parameter arguments, choose names that match
@@ -34,6 +37,7 @@ class NoteEditFragment : Fragment() {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -41,8 +45,14 @@ class NoteEditFragment : Fragment() {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_note_edit, container, false)
         val dbHandler = context?.let { NotesDatabase(it) }
+        val encryptorMethods = encryptorMethods()
 
         val updatedNote = Note("New Header", "New Body", 1)
+
+        val noteBodyText = view.findViewById<EditText>(R.id.noteBodyText)
+        noteBodyText.setText(updatedNote.body)
+
+        val encrypted_text = encryptorMethods.encryptText(updatedNote.body)
 
         view.findViewById<Button>(R.id.submitNoteButton).setOnClickListener{
             val gotNote = dbHandler?.getNote(9)
@@ -50,13 +60,17 @@ class NoteEditFragment : Fragment() {
                 Log.d("check db functions", gotNote.header)
             }
 
+//            val handlerResult = dbHandler?.addNote("header", "note1", model)
 
             if (dbHandler != null) {
                 val success = dbHandler.updateNote(updatedNote)
                 Log.d("check db functions", success.toString())
             }
 
-            Navigation.findNavController(view).navigate(R.id.action_noteEditFragment_to_noteListFragment)
+            noteBodyText.setText(encrypted_text)
+
+
+//            Navigation.findNavController(view).navigate(R.id.action_noteEditFragment_to_noteListFragment)
         }
 
         return view

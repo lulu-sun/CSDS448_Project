@@ -50,6 +50,8 @@ class NotesDatabase(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME,
     }
 
     fun getNote(_id:Int): Note? {
+        // Gets a particular note by id. Returns a Note class object
+
         val db = writableDatabase
         var note: Note? = null
         val selectQuery = "SELECT * FROM $TABLE_NAME WHERE $ID = $_id"
@@ -63,11 +65,12 @@ class NotesDatabase(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME,
             }
             cursor.close()
         }
-
         return note
     }
 
     fun getAllNotes():NoteModel {
+        // Gets all the notes in the database as a NoteModel class object
+
         val db = writableDatabase
         val noteModel = NoteModel()
         val selectQuery = "SELECT * FROM $TABLE_NAME"
@@ -83,6 +86,7 @@ class NotesDatabase(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME,
             } while(cursor.moveToNext())
         }
         cursor.close()
+        Log.d("Database check", cursor.toString())
         return noteModel
     }
 
@@ -96,6 +100,20 @@ class NotesDatabase(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME,
         val success = db.update(TABLE_NAME, values,"$ID=?", arrayOf(note.id.toString())).toLong()
         db.close()
         return Integer.parseInt("$success")!= -1
+    }
+
+    fun deleteNote(_id:Int):Boolean{
+        // Deletes a note by id
+        val db = this.writableDatabase
+        val success = db.delete(TABLE_NAME, "ID=?", arrayOf(_id.toString())).toLong()
+        db.close()
+        return Integer.parseInt("$success")!= -1
+    }
+
+    fun deleteAllEntries(){
+        val db = this.writableDatabase
+        db.delete(TABLE_NAME, null, null)
+        Log.d("Database check", "Entries deleted")
     }
 
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {

@@ -41,18 +41,8 @@ class NoteListFragment : Fragment() {
         if (dbHandler != null) {
             // Get all the notes in the database
             model = dbHandler.getAllNotes()
+            Log.d("Database check", model.toString())
         }
-
-        var success = ""
-        val handlerResult = dbHandler?.addNote("header", "note1", model)
-        if (handlerResult != null) {
-            success = handlerResult.first.toString()
-        }
-
-        if (handlerResult != null) {
-            Log.d("Database check", success)
-        }
-
 
         // Set the adapter
         if (view is RecyclerView) {

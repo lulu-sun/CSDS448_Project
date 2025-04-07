@@ -1,10 +1,26 @@
 package dev.lulu.csds448notesapp.hash
 
+import android.preference.PreferenceManager
+import android.security.keystore.KeyGenParameterSpec
+import android.util.Base64
+import java.security.KeyStore
 import java.security.MessageDigest
 import java.security.NoSuchAlgorithmException
 
 class PinManager () {
-    // TODO: function that saves a new pin's hash value?
+
+    fun savePin(pin:String){
+        val hashedPin = hashFunction(pin.toByteArray())
+        val encodedHash = Base64.encodeToString(hashedPin, Base64.DEFAULT)
+        //TODO: put the pin somewhere????
+
+
+    }
+
+    fun checkPin(pin:String){
+        val hashedPin = hashFunction(pin.toByteArray())
+        //TODO: check this against saved hash?
+    }
 
     fun hashFunction(byteArray: ByteArray):ByteArray {
         /*
