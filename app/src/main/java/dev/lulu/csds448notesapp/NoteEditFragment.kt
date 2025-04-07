@@ -42,11 +42,20 @@ class NoteEditFragment : Fragment() {
         val view = inflater.inflate(R.layout.fragment_note_edit, container, false)
         val dbHandler = context?.let { NotesDatabase(it) }
 
+        val updatedNote = Note("New Header", "New Body", 1)
+
         view.findViewById<Button>(R.id.submitNoteButton).setOnClickListener{
             val gotNote = dbHandler?.getNote(9)
             if (gotNote != null) {
-                Log.d("check get function", gotNote.header)
+                Log.d("check db functions", gotNote.header)
             }
+
+
+            if (dbHandler != null) {
+                val success = dbHandler.updateNote(updatedNote)
+                Log.d("check db functions", success.toString())
+            }
+
             Navigation.findNavController(view).navigate(R.id.action_noteEditFragment_to_noteListFragment)
         }
 
