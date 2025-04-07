@@ -1,10 +1,14 @@
 package dev.lulu.csds448notesapp
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
+import androidx.navigation.Navigation
+import dev.lulu.csds448notesapp.noteModel.Note
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -34,7 +38,19 @@ class NoteEditFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_note_edit, container, false)
+        val view = inflater.inflate(R.layout.fragment_note_edit, container, false)
+
+        val dbHandler = context?.let { NotesDatabase(it) }
+        var success:Boolean = false
+        val note = Note("header", "body")
+        success = dbHandler?.addNote(note) as Boolean
+        Log.d("Database check", success.toString())
+
+        view.findViewById<Button>(R.id.submitNoteButton).setOnClickListener{
+            Navigation.findNavController(view).navigate(R.id.action_noteEditFragment_to_noteListFragment)
+        }
+
+        return view
     }
 
     companion object {
