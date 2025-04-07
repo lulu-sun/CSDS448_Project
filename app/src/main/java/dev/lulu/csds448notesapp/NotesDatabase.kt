@@ -49,6 +49,24 @@ class NotesDatabase(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME,
         return Pair(Integer.parseInt("$success")!= -1, noteModel)
     }
 
+    fun getNote(_id:Int): Note? {
+        val db = writableDatabase
+        var note: Note? = null
+        val selectQuery = "SELECT * FROM $TABLE_NAME WHERE $ID = $_id"
+        val cursor = db.rawQuery(selectQuery, null)
+        if(cursor!=null) {
+            if(cursor.moveToFirst()){
+                var id = Integer.parseInt(cursor.getString(cursor.getColumnIndex(ID)))
+                var header = cursor.getString(cursor.getColumnIndex(HEADER))
+                var body = cursor.getString(cursor.getColumnIndex(BODY))
+                note = Note(header, body, id)
+            }
+            cursor.close()
+        }
+
+        return note
+    }
+
     fun getAllNotes():NoteModel {
         val db = writableDatabase
         val noteModel = NoteModel()

@@ -44,7 +44,7 @@ class NoteListFragment : Fragment() {
         }
 
         var success = ""
-        val handlerResult = dbHandler?.addNote("header", "note", model)
+        val handlerResult = dbHandler?.addNote("header", "note1", model)
         if (handlerResult != null) {
             success = handlerResult.first.toString()
         }

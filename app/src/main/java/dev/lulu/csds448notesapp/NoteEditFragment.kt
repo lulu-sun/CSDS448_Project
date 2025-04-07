@@ -43,7 +43,10 @@ class NoteEditFragment : Fragment() {
         val dbHandler = context?.let { NotesDatabase(it) }
 
         view.findViewById<Button>(R.id.submitNoteButton).setOnClickListener{
-
+            val gotNote = dbHandler?.getNote(9)
+            if (gotNote != null) {
+                Log.d("check get function", gotNote.header)
+            }
             Navigation.findNavController(view).navigate(R.id.action_noteEditFragment_to_noteListFragment)
         }
 
