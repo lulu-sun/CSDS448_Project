@@ -19,7 +19,7 @@ import dev.lulu.csds448notesapp.placeholder.PlaceholderContent
 class NoteListFragment : Fragment() {
 
     private var columnCount = 1
-    private var model = NoteModel()
+    private var model = NoteModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

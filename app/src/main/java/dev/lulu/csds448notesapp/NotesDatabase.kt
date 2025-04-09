@@ -82,7 +82,7 @@ class NotesDatabase(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME,
         // Gets all the notes in the database as a NoteModel class object
 
         val db = writableDatabase
-        val noteModel = NoteModel()
+        val noteModel = NoteModel
         val selectQuery = "SELECT * FROM $TABLE_NAME"
         val cursor = db.rawQuery(selectQuery, null)
         if (cursor.moveToFirst()) {

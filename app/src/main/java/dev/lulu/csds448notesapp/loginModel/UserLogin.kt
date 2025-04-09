@@ -7,7 +7,7 @@ import java.security.NoSuchAlgorithmException
 Model that contains information about the user login status (a boolean)
  */
 
-class UserLogin {
+object UserLogin {
 
     val isLoggedIn: Boolean = false // This keeps track of whether the user is logged in or not
 

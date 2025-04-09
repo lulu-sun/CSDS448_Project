@@ -7,7 +7,7 @@ Class for the recycler view list. Mutable list of (class) "Note". Populate with 
 
  */
 
-class NoteModel(){
+object NoteModel{
     private val notes = mutableListOf<Note>()
 //
 //    constructor() {
