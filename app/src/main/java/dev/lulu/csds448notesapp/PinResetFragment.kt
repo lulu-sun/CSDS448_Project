@@ -5,7 +5,10 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
+import android.widget.EditText
 import android.widget.TextView
+import android.widget.Toast
 import androidx.navigation.Navigation
 import dev.lulu.csds448notesapp.hash.PinManager
 
@@ -19,42 +22,40 @@ private const val ARG_PARAM2 = "param2"
  * Use the [PinResetFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-class PinResetFragment : Fragment() {
+class  PinResetFragment : Fragment() {
     // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
-    }
+    private lateinit var enterPin: EditText
+    private lateinit var confirmPin: EditText
+    private lateinit var submitButton: Button
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_pin_reset, container, false)
 
-        // TODO: Get the pins (enter pin, confirm pin) from the view
-        // TODO: Check if the two pins are the same. If not, don't allow saving, show a toast that they are not the same
-        // TODO: If the two pins are the same, then hash the pin and save it
+        enterPin = view.findViewById(R.id.pinLoginText2)
+        confirmPin = view.findViewById(R.id.pinResetSecondText)
+        submitButton = view.findViewById(R.id.submitNewPinButton)
 
+        submitButton.setOnClickListener {
+            val pin = enterPin.text.toString()
+            val confirm = confirmPin.text.toString()
 
-        view.findViewById<TextView>(R.id.submitNewPinButton).setOnClickListener{
-            Navigation.findNavController(view).navigate(R.id.action_pinResetFragment_to_pinLoginMainFragment)
+            if (pin.length < 4) {
+                Toast.makeText(requireContext(), "PIN must be at least 4 digits", Toast.LENGTH_SHORT). show()
+            } else if (pin != confirm) {
+                Toast.makeText(requireContext(), "PINs do not match", Toast.LENGTH_SHORT).show()
+            } else {
+                PinManager.PinManager.savePin(requireContext(), pin)
+                Toast.makeText(requireContext(), "PIN set successfully!", Toast.LENGTH_SHORT).show()
+                parentFragmentManager.popBackStack()
+            }
         }
-
         return view
 
 
-
-    }
-
-    companion object {
+    //companion object {
         /**
          * Use this factory method to create a new instance of
          * this fragment using the provided parameters.
@@ -64,13 +65,11 @@ class PinResetFragment : Fragment() {
          * @return A new instance of fragment PinResetFragment.
          */
         // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            PinResetFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
-                }
-            }
+        //@JvmStatic
+        //fun newInstance(param1: String, param2: String) =
+           // PinResetFragment().apply {
+               // arguments = Bundle().apply {
+                   // putString(ARG_PARAM1, param1)
+                  //  putString(ARG_PARAM2, param2)
+        }
     }
-}
