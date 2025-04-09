@@ -55,16 +55,26 @@ class NotesDatabase(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME,
         val db = writableDatabase
         var note: Note? = null
         val selectQuery = "SELECT * FROM $TABLE_NAME WHERE $ID = $_id"
+
+        Log.d("Communication test", selectQuery)
+
         val cursor = db.rawQuery(selectQuery, null)
-        if(cursor!=null) {
-            if(cursor.moveToFirst()){
-                var id = Integer.parseInt(cursor.getString(cursor.getColumnIndex(ID)))
-                var header = cursor.getString(cursor.getColumnIndex(HEADER))
-                var body = cursor.getString(cursor.getColumnIndex(BODY))
-                note = Note(header, body, id)
-            }
-            cursor.close()
+
+        Log.d("Communication test", cursor.count.toString())
+
+        if(cursor.moveToFirst()){
+            Log.d("Communication test", "inside cursor loop")
+            var id = Integer.parseInt(cursor.getString(cursor.getColumnIndex(ID)))
+            var header = cursor.getString(cursor.getColumnIndex(HEADER))
+            var body = cursor.getString(cursor.getColumnIndex(BODY))
+            note = Note(header, body, id)
         }
+        cursor.close()
+
+        if (note != null) {
+            Log.d("Communication test", note.header)
+        }
+
         return note
     }
 

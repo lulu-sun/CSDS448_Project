@@ -13,6 +13,7 @@ import androidx.annotation.RequiresApi
 import androidx.navigation.Navigation
 import dev.lulu.csds448notesapp.encryption.encryptorMethods
 import dev.lulu.csds448notesapp.noteModel.Note
+import dev.lulu.csds448notesapp.noteModel.NoteModel
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -44,32 +45,54 @@ class NoteEditFragment : Fragment() {
     ): View? {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_note_edit, container, false)
+
+        // Initialize the position variable
+        var position:Int? = null
+
+        // Receive data from NoteListFragment
+        arguments?.let{
+            position = it.getString("position")?.toInt()
+            Log.d("Communication test", position.toString())
+        }
+
+        // Database CRUD methods
         val dbHandler = context?.let { NotesDatabase(it) }
+
+        // Encryption methods
         val encryptorMethods = encryptorMethods()
 
-        val updatedNote = Note("New Header", "New Body", 1)
+        // Clicked note = get the id at 1
+        val clickedNote = dbHandler?.getNote(16)
 
+        if (dbHandler != null) {
+            println("hello")
+            println(dbHandler.getNote(0))
+        }
+
+        if (dbHandler != null) {
+            val all_notes: NoteModel = dbHandler.getAllNotes()
+            println("next")
+            println(all_notes.getNotes()[0].id)
+        }
+
+        // Check if theres anything in there
+        clickedNote?.let { Log.d("Communication test", it.header) }
+
+        // Get the body textbox
         val noteBodyText = view.findViewById<EditText>(R.id.noteBodyText)
-        noteBodyText.setText(updatedNote.body)
+        noteBodyText.setText("test")
 
-        val encrypted_text = encryptorMethods.encryptText(updatedNote.body)
+        // Test encryption
+//        val encrypted_text = encryptorMethods.encryptText(updatedNote.body)
 
         view.findViewById<Button>(R.id.submitNoteButton).setOnClickListener{
-            val gotNote = dbHandler?.getNote(9)
-            if (gotNote != null) {
-                Log.d("check db functions", gotNote.header)
-            }
 
-//            val handlerResult = dbHandler?.addNote("header", "note1", model)
+//            if (dbHandler != null) {
+//                val success = dbHandler.updateNote(updatedNote)
+//                Log.d("check db functions", success.toString())
+//            }
 
-            if (dbHandler != null) {
-                val success = dbHandler.updateNote(updatedNote)
-                Log.d("check db functions", success.toString())
-            }
-
-            noteBodyText.setText(encrypted_text)
-
-
+//            noteBodyText.setText(encrypted_text)
 //            Navigation.findNavController(view).navigate(R.id.action_noteEditFragment_to_noteListFragment)
         }
 

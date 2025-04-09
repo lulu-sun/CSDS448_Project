@@ -53,7 +53,11 @@ class MyNoteRecyclerViewAdapter(
 
         init {
             contentView.setOnClickListener{
-                Navigation.findNavController(contentView).navigate(R.id.action_noteListFragment_to_noteEditFragment)
+                Log.d("AdapterTest", getBindingAdapterPosition().toString())
+                val positionBundle = Bundle()
+                positionBundle.putString("position", (getBindingAdapterPosition() + 1).toString())
+
+                Navigation.findNavController(contentView).navigate(R.id.action_noteListFragment_to_noteEditFragment, positionBundle)
             }
         }
 
