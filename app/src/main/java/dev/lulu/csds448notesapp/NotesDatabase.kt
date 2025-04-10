@@ -83,6 +83,9 @@ class NotesDatabase(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME,
 
         val db = writableDatabase
         val noteModel = NoteModel
+        // Clear existing notes to avoid duplicates
+        noteModel.clearNotes()
+
         val selectQuery = "SELECT * FROM $TABLE_NAME"
         val cursor = db.rawQuery(selectQuery, null)
         if (cursor.moveToFirst()) {
@@ -120,10 +123,11 @@ class NotesDatabase(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME,
         return Integer.parseInt("$success")!= -1
     }
 
-    fun deleteAllEntries(){
+    fun deleteAllEntries():Boolean{
         val db = this.writableDatabase
-        db.delete(TABLE_NAME, null, null)
-        Log.d("Database check", "Entries deleted")
+        val count = db.delete(TABLE_NAME, null, null)
+        Log.d("Database check", "Entries deleted: $count")
+        return count > 0
     }
 
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
@@ -133,7 +137,5 @@ class NotesDatabase(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME,
         if (db != null) {
             onCreate(db)
         }
-
     }
-
 }

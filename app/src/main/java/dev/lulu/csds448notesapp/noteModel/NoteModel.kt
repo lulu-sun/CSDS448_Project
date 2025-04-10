@@ -4,10 +4,9 @@ import dev.lulu.csds448notesapp.NotesDatabase
 
 /*
 Class for the recycler view list. Mutable list of (class) "Note". Populate with the headers
+*/
 
- */
-
-object NoteModel{
+object NoteModel {
     private val notes = mutableListOf<Note>()
 //
 //    constructor() {
@@ -18,18 +17,20 @@ object NoteModel{
 //        }
 //    }
 
-    public fun getNotes() : List<Note> {
+    fun getNotes() : List<Note> {
         // public function, "getter" for the notes
         return notes
     }
 
-    public fun getCount(): Int {
+    fun getCount(): Int {
         return notes.size
     }
 
-    public fun putNote(note:Note) {
+    fun putNote(note: Note) {
         notes.add(note)
     }
 
-
+    fun clearNotes() {
+        notes.clear()
+    }
 }
