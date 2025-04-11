@@ -16,7 +16,7 @@ import dev.lulu.csds448notesapp.placeholder.PlaceholderContent
 /**
  * A fragment representing a list of Items.
  */
-class NoteListFragment : Fragment() {
+class NoteListFragment : Fragment(), MyNoteRecyclerViewAdapter.AdapterDelegate {
 
     private var columnCount = 1
     private var model = NoteModel
@@ -51,9 +51,15 @@ class NoteListFragment : Fragment() {
                     columnCount <= 1 -> LinearLayoutManager(context)
                     else -> GridLayoutManager(context, columnCount)
                 }
-                adapter = MyNoteRecyclerViewAdapter(model)
+
+                val a = MyNoteRecyclerViewAdapter(model)
+                a.adapterDelegate = this@NoteListFragment
+                adapter = a
+
             }
+
         }
+
         return view
     }
 
@@ -70,5 +76,10 @@ class NoteListFragment : Fragment() {
                     putInt(ARG_COLUMN_COUNT, columnCount)
                 }
             }
+    }
+
+    override fun didSelectRow(index: Int) {
+        val row = index
+        Log.d("AdapterTest", "Did select row: $row")
     }
 }

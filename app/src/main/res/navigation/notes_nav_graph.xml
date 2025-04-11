@@ -3,25 +3,30 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/notes_nav_graph"
-    app:startDestination="@id/noteListFragment">
+    app:startDestination="@id/recyclerFragmentHost">
 
     <fragment
         android:id="@+id/noteListFragment"
         android:name="dev.lulu.csds448notesapp.NoteListFragment"
         android:label="fragment_note_list_list"
-        tools:layout="@layout/fragment_note_list_list" >
-        <action
-            android:id="@+id/action_noteListFragment_to_noteEditFragment"
-            app:destination="@id/noteEditFragment" />
-    </fragment>
+        tools:layout="@layout/fragment_note_list_list" />
     <fragment
         android:id="@+id/noteEditFragment"
         android:name="dev.lulu.csds448notesapp.NoteEditFragment"
         android:label="fragment_note_edit"
         tools:layout="@layout/fragment_note_edit" >
         <action
-            android:id="@+id/action_noteEditFragment_to_noteListFragment"
-            app:destination="@id/noteListFragment" />
+            android:id="@+id/action_noteEditFragment_to_recyclerFragmentHost"
+            app:destination="@id/recyclerFragmentHost" />
+    </fragment>
+    <fragment
+        android:id="@+id/recyclerFragmentHost"
+        android:name="dev.lulu.csds448notesapp.RecyclerFragmentHost"
+        android:label="fragment_recycler_host"
+        tools:layout="@layout/fragment_recycler_host" >
+        <action
+            android:id="@+id/action_recyclerFragmentHost_to_noteEditFragment"
+            app:destination="@id/noteEditFragment" />
     </fragment>
 
 </navigation>
