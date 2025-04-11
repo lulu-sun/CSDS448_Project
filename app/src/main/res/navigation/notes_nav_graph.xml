@@ -18,6 +18,10 @@
         android:id="@+id/noteEditFragment"
         android:name="dev.lulu.csds448notesapp.NoteEditFragment"
         android:label="fragment_note_edit"
-        tools:layout="@layout/fragment_note_edit" />
+        tools:layout="@layout/fragment_note_edit" >
+        <action
+            android:id="@+id/action_noteEditFragment_to_noteListFragment"
+            app:destination="@id/noteListFragment" />
+    </fragment>
 
 </navigation>

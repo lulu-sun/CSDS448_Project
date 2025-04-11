@@ -13,6 +13,7 @@ import dev.lulu.csds448notesapp.placeholder.PlaceholderContent.PlaceholderItem
 import dev.lulu.csds448notesapp.databinding.FragmentNoteListBinding
 import dev.lulu.csds448notesapp.noteModel.Note
 import dev.lulu.csds448notesapp.noteModel.NoteModel
+import java.security.AccessController.getContext
 
 /**
  * [RecyclerView.Adapter] that can display a [PlaceholderItem].
@@ -20,6 +21,7 @@ import dev.lulu.csds448notesapp.noteModel.NoteModel
  */
 class MyNoteRecyclerViewAdapter(
     private val model: NoteModel
+
 
 ) : RecyclerView.Adapter<MyNoteRecyclerViewAdapter.ViewHolder>() {
 
@@ -51,7 +53,11 @@ class MyNoteRecyclerViewAdapter(
 
         init {
             contentView.setOnClickListener{
-                Navigation.findNavController(contentView).navigate(R.id.action_noteListFragment_to_noteEditFragment)
+                Log.d("AdapterTest", getBindingAdapterPosition().toString())
+                val positionBundle = Bundle()
+                positionBundle.putString("position", (getBindingAdapterPosition() + 1).toString())
+
+                Navigation.findNavController(contentView).navigate(R.id.action_noteListFragment_to_noteEditFragment, positionBundle)
             }
         }
 

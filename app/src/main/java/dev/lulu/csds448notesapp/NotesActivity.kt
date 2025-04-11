@@ -24,4 +24,5 @@ class NotesActivity : AppCompatActivity() {
         }
     }
 
+
 }
