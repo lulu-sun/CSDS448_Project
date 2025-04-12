@@ -16,8 +16,7 @@ import dev.lulu.csds448notesapp.noteModel.Note
 import dev.lulu.csds448notesapp.noteModel.NoteModel
 import java.security.AccessController.getContext
 
-class MyNoteRecyclerViewAdapter(
-    private val model: NoteModel) : RecyclerView.Adapter<MyNoteRecyclerViewAdapter.ViewHolder>() {
+class MyNoteRecyclerViewAdapter() : RecyclerView.Adapter<MyNoteRecyclerViewAdapter.ViewHolder>() {
 
     interface AdapterDelegate {
         fun didSelectRow(index:Int)
@@ -34,16 +33,16 @@ class MyNoteRecyclerViewAdapter(
                 false
             )
         )
-
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val note: Note = model.getNotes()[position]
+        val note = NoteModel.getNotes()[position]
+        Log.d("NoteModel", "OnBind " + note.header)
 //        holder.idView.text = item.id
         holder.contentView.text = note.header
     }
 
-    override fun getItemCount(): Int = model.getCount()
+    override fun getItemCount(): Int = NoteModel.getCount()
 
     inner class ViewHolder(binding: FragmentNoteListBinding) :
         RecyclerView.ViewHolder(binding.root) {
