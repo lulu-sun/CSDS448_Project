@@ -51,8 +51,6 @@ class NoteEditFragment : Fragment() {
         val dbHandler = context?.let { NotesDatabase(it) }
         val encryptorMethods = encryptorMethods()
 
-
-
         // Initialize the position variable
         var position:Int? = null
 
@@ -78,8 +76,14 @@ class NoteEditFragment : Fragment() {
                 } else {
                     Toast.makeText(activity, "Please fill out both title & body!!!", Toast.LENGTH_SHORT).show()
                 }
+            }
+
+            view.findViewById<Button>(R.id.deleteButton).setOnClickListener{
+                dbHandler?.deleteNote(currentNote.id)
+                Navigation.findNavController(view).navigate(R.id.action_noteEditFragment_to_recyclerFragmentHost)
 
             }
+
         } else {
             // Do these things when we came from the + button, so create new note
             view.findViewById<Button>(R.id.submitNoteButton).setOnClickListener{
