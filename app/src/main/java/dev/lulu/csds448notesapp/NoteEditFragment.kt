@@ -2,17 +2,16 @@ package dev.lulu.csds448notesapp
 
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
+import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.navigation.Navigation
 import dev.lulu.csds448notesapp.encryption.encryptorMethods
-import dev.lulu.csds448notesapp.noteModel.Note
 import dev.lulu.csds448notesapp.noteModel.NoteModel
 
 // TODO: Rename parameter arguments, choose names that match
@@ -47,32 +46,58 @@ class NoteEditFragment : Fragment() {
     ): View? {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_note_edit, container, false)
-        val noteHeaderText = view.findViewById<EditText>(R.id.noteHeaderText)
-        val noteBodyText = view.findViewById<EditText>(R.id.noteBodyText)
+        val noteHeaderTextBox = view.findViewById<EditText>(R.id.noteHeaderText)
+        val noteBodyTextBox = view.findViewById<EditText>(R.id.noteBodyText)
         val dbHandler = context?.let { NotesDatabase(it) }
         val encryptorMethods = encryptorMethods()
+
+
 
         // Initialize the position variable
         var position:Int? = null
 
         // Receive data from NoteListFragment
-        arguments?.let{
-            position = it.getString("position")?.toInt()
-            val currentNote = NoteModel.getNotes()[position!!]
-            noteHeaderText.setText(currentNote.body)
-            noteBodyText.setText(currentNote.body)
+        if (arguments != null) {
+            // Do these things when we came from an existing note, so update the note
+            position = requireArguments().getString("position")?.toInt()
+            var currentNote = NoteModel.getNotes()[position!!]
+            noteHeaderTextBox.setText(currentNote.header)
+            noteBodyTextBox.setText(currentNote.body)
+
+            view.findViewById<Button>(R.id.submitNoteButton).setOnClickListener{
+                val noteHeaderString = noteHeaderTextBox.text.toString()
+                val noteBodyString = noteBodyTextBox.text.toString()
+
+                if (noteHeaderString != "" && noteBodyString!= "" && dbHandler != null) {
+                    currentNote.header = noteHeaderString
+                    currentNote.body = noteBodyString
+                    dbHandler.updateNote(currentNote)
+
+                    Navigation.findNavController(view).navigate(R.id.action_noteEditFragment_to_recyclerFragmentHost)
+
+                } else {
+                    Toast.makeText(activity, "Please fill out both title & body!!!", Toast.LENGTH_SHORT).show()
+                }
+
+            }
+        } else {
+            // Do these things when we came from the + button, so create new note
+            view.findViewById<Button>(R.id.submitNoteButton).setOnClickListener{
+                val noteHeaderString = noteHeaderTextBox.text.toString()
+                val noteBodyString = noteBodyTextBox.text.toString()
+
+                if (noteHeaderString != "" && noteBodyString != "" && dbHandler != null) {
+                    dbHandler.addNote(noteHeaderString, noteBodyString)
+                    Navigation.findNavController(view).navigate(R.id.action_noteEditFragment_to_recyclerFragmentHost)
+
+                } else {
+                    Toast.makeText(activity, "Please fill out both title & body!", Toast.LENGTH_SHORT).show()
+                }
+
+            }
         }
 
-        view.findViewById<Button>(R.id.submitNoteButton).setOnClickListener{
 
-//            if (dbHandler != null) {
-//                val success = dbHandler.updateNote(updatedNote)
-//                Log.d("check db functions", success.toString())
-//            }
-
-//            noteBodyText.setText(encrypted_text)
-            Navigation.findNavController(view).navigate(R.id.action_noteEditFragment_to_recyclerFragmentHost)
-        }
 
         return view
     }
