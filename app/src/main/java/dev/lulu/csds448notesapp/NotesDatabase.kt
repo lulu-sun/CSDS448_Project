@@ -32,21 +32,23 @@ class NotesDatabase(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME,
         db.execSQL(createNotesTable)
     }
 
-    fun addNote(header:String, body: String, noteModel: NoteModel):Pair<Boolean, NoteModel>{
-        // Adds a note to db and noteModel, and RETURNS a bool for success + the updated noteModel
-
+    fun addNote(header:String, body: String):Boolean{
+        // Adds a note to db and noteModel, and RETURNS a bool for success
         // Add header, string into the database
         val db = this.writableDatabase
         val values = ContentValues()
         values.put(HEADER, header)
         values.put(BODY, body)
+
         val success = db.insert(TABLE_NAME, null, values)
 
         // Create the note object and add to NoteModel
         val note = Note(header, body, success.toInt())
-        noteModel.putNote(note)
 
-        return Pair(Integer.parseInt("$success")!= -1, noteModel)
+        NoteModel.putNote(note)
+        Log.d("DatabaseTest", note.header + note.body + note.id.toString())
+
+        return Integer.parseInt("$success")!= -1
     }
 
     fun getNote(_id:Int): Note? {
@@ -55,9 +57,6 @@ class NotesDatabase(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME,
         val db = writableDatabase
         var note: Note? = null
         val selectQuery = "SELECT * FROM $TABLE_NAME WHERE $ID = $_id"
-
-        Log.d("Communication test", selectQuery)
-
         val cursor = db.rawQuery(selectQuery, null)
 
         Log.d("Communication test", cursor.count.toString())
@@ -71,33 +70,34 @@ class NotesDatabase(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME,
         }
         cursor.close()
 
-        if (note != null) {
-            Log.d("Communication test", note.header)
-        }
-
         return note
     }
 
-    fun getAllNotes():NoteModel {
-        // Gets all the notes in the database as a NoteModel class object
+    fun getAllNotes():MutableList<Note> {
+        // Gets all the notes in the database and stores in a MutableList
 
         val db = writableDatabase
-        val noteModel = NoteModel
+        val notesList = mutableListOf<Note>()
+
+        // Select all the notes! Using the cursor, one by one
         val selectQuery = "SELECT * FROM $TABLE_NAME"
         val cursor = db.rawQuery(selectQuery, null)
+
         if (cursor.moveToFirst()) {
             do {
                 var id = Integer.parseInt(cursor.getString(cursor.getColumnIndex(ID)))
                 var header = cursor.getString(cursor.getColumnIndex(HEADER))
                 var body = cursor.getString(cursor.getColumnIndex(BODY))
                 val note = Note(header, body, id)
-                noteModel.putNote(note)
+
+                notesList.add(note)
 
             } while(cursor.moveToNext())
         }
         cursor.close()
+
         Log.d("Database check", cursor.toString())
-        return noteModel
+        return notesList
     }
 
     fun updateNote(note:Note):Boolean{

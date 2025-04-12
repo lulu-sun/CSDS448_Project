@@ -30,6 +30,8 @@ class NoteEditFragment : Fragment() {
     private var param1: String? = null
     private var param2: String? = null
 
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
@@ -45,6 +47,10 @@ class NoteEditFragment : Fragment() {
     ): View? {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_note_edit, container, false)
+        val noteHeaderText = view.findViewById<EditText>(R.id.noteHeaderText)
+        val noteBodyText = view.findViewById<EditText>(R.id.noteBodyText)
+        val dbHandler = context?.let { NotesDatabase(it) }
+        val encryptorMethods = encryptorMethods()
 
         // Initialize the position variable
         var position:Int? = null
@@ -52,38 +58,10 @@ class NoteEditFragment : Fragment() {
         // Receive data from NoteListFragment
         arguments?.let{
             position = it.getString("position")?.toInt()
-            Log.d("Communication test", position.toString())
+            val currentNote = NoteModel.getNotes()[position!!]
+            noteHeaderText.setText(currentNote.body)
+            noteBodyText.setText(currentNote.body)
         }
-
-        // Database CRUD methods
-        val dbHandler = context?.let { NotesDatabase(it) }
-
-        // Encryption methods
-        val encryptorMethods = encryptorMethods()
-
-        // Clicked note = get the id at 1
-        val clickedNote = dbHandler?.getNote(16)
-
-        if (dbHandler != null) {
-            println("hello")
-            println(dbHandler.getNote(0))
-        }
-
-        if (dbHandler != null) {
-            val all_notes: NoteModel = dbHandler.getAllNotes()
-            println("next")
-            println(all_notes.getNotes()[0].id)
-        }
-
-        // Check if theres anything in there
-        clickedNote?.let { Log.d("Communication test", it.header) }
-
-        // Get the body textbox
-        val noteBodyText = view.findViewById<EditText>(R.id.noteBodyText)
-        noteBodyText.setText("test")
-
-        // Test encryption
-//        val encrypted_text = encryptorMethods.encryptText(updatedNote.body)
 
         view.findViewById<Button>(R.id.submitNoteButton).setOnClickListener{
 
@@ -93,7 +71,7 @@ class NoteEditFragment : Fragment() {
 //            }
 
 //            noteBodyText.setText(encrypted_text)
-//            Navigation.findNavController(view).navigate(R.id.action_noteEditFragment_to_noteListFragment)
+            Navigation.findNavController(view).navigate(R.id.action_noteEditFragment_to_recyclerFragmentHost)
         }
 
         return view
