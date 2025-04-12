@@ -32,10 +32,9 @@ class NoteListFragment : Fragment(), MyNoteRecyclerViewAdapter.AdapterDelegate {
         val notes = dbHandler?.getAllNotes()
 
         if (notes != null) {
-            Log.d("NoteModel", notes[0].header)
             NoteModel.resetNotes(notes)
 
-        } else {
+        }else {
             Log.d("NoteModel", "Notes is null")
         }
 
