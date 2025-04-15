@@ -6,6 +6,7 @@ import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Adapter
 import android.widget.TextView
 import androidx.navigation.Navigation
 
@@ -15,15 +16,13 @@ import dev.lulu.csds448notesapp.noteModel.Note
 import dev.lulu.csds448notesapp.noteModel.NoteModel
 import java.security.AccessController.getContext
 
-/**
- * [RecyclerView.Adapter] that can display a [PlaceholderItem].
- * TODO: Replace the implementation with code for your data type.
- */
-class MyNoteRecyclerViewAdapter(
-    private val model: NoteModel
+class MyNoteRecyclerViewAdapter() : RecyclerView.Adapter<MyNoteRecyclerViewAdapter.ViewHolder>() {
 
+    interface AdapterDelegate {
+        fun didSelectRow(index:Int)
+    }
 
-) : RecyclerView.Adapter<MyNoteRecyclerViewAdapter.ViewHolder>() {
+    var adapterDelegate: AdapterDelegate? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
 
@@ -34,17 +33,16 @@ class MyNoteRecyclerViewAdapter(
                 false
             )
         )
-
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val note: Note = model.getNotes()[position]
-
+        val note = NoteModel.getNotes()[position]
+        Log.d("NoteModel", "OnBind " + note.header)
 //        holder.idView.text = item.id
         holder.contentView.text = note.header
     }
 
-    override fun getItemCount(): Int = model.getCount()
+    override fun getItemCount(): Int = NoteModel.getCount()
 
     inner class ViewHolder(binding: FragmentNoteListBinding) :
         RecyclerView.ViewHolder(binding.root) {
@@ -54,10 +52,13 @@ class MyNoteRecyclerViewAdapter(
         init {
             contentView.setOnClickListener{
                 Log.d("AdapterTest", getBindingAdapterPosition().toString())
-                val positionBundle = Bundle()
-                positionBundle.putString("position", (getBindingAdapterPosition() + 1).toString())
 
-                Navigation.findNavController(contentView).navigate(R.id.action_noteListFragment_to_noteEditFragment, positionBundle)
+                val row = layoutPosition
+                adapterDelegate?.didSelectRow(row)
+
+//                val positionBundle = Bundle()
+//                positionBundle.putString("position", (getBindingAdapterPosition() + 1).toString())
+//                Navigation.findNavController(contentView).navigate(R.id.action_noteListFragment_to_noteEditFragment, positionBundle)
             }
         }
 
