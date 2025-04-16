@@ -1,6 +1,7 @@
 package dev.lulu.csds448notesapp
 
 import android.annotation.SuppressLint
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
@@ -35,9 +36,21 @@ class PinLoginActivity : AppCompatActivity() {
 
         loginButton.setOnClickListener {
             val enteredPin = pinLoginText.text.toString()
-            if (PinManager.PinManager.validatePin(this, enteredPin)) {
+            // first check if a pin exists
+            if (!PinManager.hasPin(this)) {
+                Toast.makeText(this, "No PIN set. Please create one.", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            // next validate the pin
+            if (PinManager.validatePin(this@PinLoginActivity, enteredPin)) {
                 //proceed to notes screen
-                Toast.makeText(this, "Login Successful!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    this@PinLoginActivity, 
+                    "Login Successful!", 
+                    Toast.LENGTH_SHORT
+                ).show()
+                val intent = Intent(this, NotesActivity::class.java)
+                startActivity(intent)
             } else {
                 Toast.makeText(this, "Invalid Pin", Toast.LENGTH_SHORT).show()
             }
@@ -63,9 +76,4 @@ class PinLoginActivity : AppCompatActivity() {
             insets
         }
     }
-
-    // TODO: Get the pin hash from the UI fragment ("PinLoginMainFragment")
-
-    // TODO: Check the pin to see if it's correct. Show toast for error if not correct. If correct, log in! (ie, send intent to move to next activity)
-
 }

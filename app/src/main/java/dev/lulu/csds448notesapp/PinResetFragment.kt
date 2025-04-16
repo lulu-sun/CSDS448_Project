@@ -39,37 +39,35 @@ class  PinResetFragment : Fragment() {
         submitButton = view.findViewById(R.id.submitNewPinButton)
 
         submitButton.setOnClickListener {
+            handlePinReset()
+        }
+        return view
+    }
+
+        private fun handlePinReset() {
             val pin = enterPin.text.toString()
             val confirm = confirmPin.text.toString()
 
-            if (pin.length < 4) {
-                Toast.makeText(requireContext(), "PIN must be at least 4 digits", Toast.LENGTH_SHORT). show()
-            } else if (pin != confirm) {
-                Toast.makeText(requireContext(), "PINs do not match", Toast.LENGTH_SHORT).show()
-            } else {
-                PinManager.PinManager.savePin(requireContext(), pin)
-                Toast.makeText(requireContext(), "PIN set successfully!", Toast.LENGTH_SHORT).show()
-                parentFragmentManager.popBackStack()
+            if (pin.isEmpty() || confirm.isEmpty()) {
+                Toast.makeText(activity, "Please enter and confirm your new PIN", Toast.LENGTH_SHORT).show()
+                return
             }
-        }
-        return view
 
+            if (pin.length < 4) {
+                Toast.makeText(activity, "PIN must be at least 4 digits", Toast.LENGTH_SHORT).show()
+                return
+            }
 
-    //companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment PinResetFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        //@JvmStatic
-        //fun newInstance(param1: String, param2: String) =
-           // PinResetFragment().apply {
-               // arguments = Bundle().apply {
-                   // putString(ARG_PARAM1, param1)
-                  //  putString(ARG_PARAM2, param2)
+            if (pin != confirm) {
+                Toast.makeText(requireContext(), "PINs do not match", Toast.LENGTH_SHORT).show()
+                return
+            }
+
+            PinManager.savePin(requireContext(), pin)
+            Toast.makeText(requireContext(), "PIN set successfully!", Toast.LENGTH_SHORT).show()
+            // now navigate back to login
+            parentFragmentManager.popBackStack()
         }
-    }
+
+}
+

@@ -48,8 +48,8 @@ class PinLoginMainFragment : Fragment() {
         val enteredPin = "1234".toByteArray() // dummy code. dont hard code pins!
 
         // TODO: call hash function from PinManager to hash this pin
-        val pinManager = PinManager() // dummy code to check the pin manager class
-        val hashed_pin = pinManager.hashFunction(enteredPin) // use the hash function to hash the pin
+        val pinManager = Pin // dummy code to check the pin manager class
+        val hashed_pin = PinManager.hashFunction(enteredPin) // use the hash function to hash the pin
         Log.d("Hash function test", hashed_pin.toString()) // print it out in the logs
 
 
