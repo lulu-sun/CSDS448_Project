@@ -9,6 +9,13 @@ Model that contains information about the user login status (a boolean)
 
 object UserLogin {
 
-    val isLoggedIn: Boolean = false // This keeps track of whether the user is logged in or not
+    private var isLoggedIn: Boolean = false // This keeps track of whether the user is logged in or not
 
+    fun setLoginStatus(status:Boolean){
+        isLoggedIn = status
+    }
+
+    fun getLoginStatus():Boolean {
+        return isLoggedIn
+    }
 }

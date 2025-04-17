@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.TextView
+import android.widget.Toast
 import androidx.core.content.ContentProviderCompat
 import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.navigation.Navigation
@@ -60,12 +61,15 @@ class PinResetFragment : Fragment() {
                 encryptorMethods.createAndSaveSalt()
                 //Creates and saves the confirmed pin hash
                 encryptorMethods.createAndSavePinHash(firstPin)
-                //TODO: Make a Toast that its successful
+
+                val successString = "Pin creation success!"
+                Toast.makeText(activity, successString, Toast.LENGTH_SHORT).show()
 
                 Navigation.findNavController(view).navigate(R.id.action_pinResetFragment_to_pinLoginMainFragment)
 
             } else {
-                //TODO: Make a toast for error
+                val errorString = "Please reconfirm the pins match"
+                Toast.makeText(activity, errorString, Toast.LENGTH_SHORT).show()
             }
 
 
