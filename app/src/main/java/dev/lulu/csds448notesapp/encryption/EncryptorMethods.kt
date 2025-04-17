@@ -1,0 +1,195 @@
+package dev.lulu.csds448notesapp.encryption
+
+import android.app.Activity
+import android.content.Context
+import android.security.keystore.KeyGenParameterSpec
+import android.security.keystore.KeyProperties
+import android.util.Base64
+import android.util.Log
+import java.security.KeyStore
+import java.security.KeyStoreSpi
+import java.security.SecureRandom
+import java.security.spec.KeySpec
+import javax.crypto.Cipher
+import javax.crypto.KeyGenerator
+import javax.crypto.SecretKey
+import javax.crypto.SecretKeyFactory
+import javax.crypto.spec.IvParameterSpec
+import javax.crypto.spec.PBEKeySpec
+
+class EncryptorMethods(private val context: Context) {
+    private val cipher = Cipher.getInstance(TRANSFORMATION)
+    private val keyStore = KeyStore.getInstance("AndroidKeyStore").apply{
+        load(null)
+    }
+
+    companion object {
+        private const val ALGORITHM = KeyProperties.KEY_ALGORITHM_AES
+        private const val BLOCK_MODE = KeyProperties.BLOCK_MODE_CBC
+        private const val PADDING = KeyProperties.ENCRYPTION_PADDING_PKCS7
+        private const val TRANSFORMATION = "$ALGORITHM/$BLOCK_MODE/$PADDING"
+    }
+
+    fun encrypt(bytes: ByteArray): ByteArray {
+        //TODO: Test encrypt and decrypt!
+        cipher.init(Cipher.ENCRYPT_MODE, getKey())
+        val iv = cipher.iv
+        val encrypted = cipher.doFinal(bytes)
+        return iv + encrypted
+    }
+
+    fun decrypt(bytes: ByteArray): ByteArray {
+        val iv = bytes.copyOfRange(0, cipher.blockSize)
+        val data = bytes.copyOfRange(cipher.blockSize, bytes.size)
+        cipher.init(Cipher.DECRYPT_MODE, getKey(), IvParameterSpec(iv))
+        return cipher.doFinal(data)
+    }
+
+    private fun getKey(): SecretKey {
+        // Put the pin in for now
+        // but, need to retrieve the pin
+        val pin = "Temporary Pin"//TODO: Change this
+        val existingKey = keyStore.getEntry("secret", null) as? KeyStore.SecretKeyEntry
+        return existingKey?.secretKey ?: createKey()
+    }
+
+    private fun createKey(): SecretKey {
+        val iteration = 120_000
+        val keylength = 256
+        val algorithm = "PBKDF2WithHmacSHA512"
+        val pin = "Temporary Pin" //TODO: change this
+        val salt = getSalt()
+
+        val factory: SecretKeyFactory = SecretKeyFactory.getInstance(algorithm)
+        val spec: KeySpec = PBEKeySpec(pin.toCharArray(), salt, iteration, keylength)
+        val key: SecretKey = factory.generateSecret(spec)
+
+        return key
+    }
+
+    private fun generateSalt(): ByteArray {
+        // Creates a new salt. Returns a salt:ByteArray
+        val random = SecureRandom()
+        val saltArray = ByteArray(16)
+        random.nextBytes(saltArray)
+        //TODO: load / save using an object class
+        return saltArray
+    }
+
+    fun createAndSaveSalt() {
+        // Creates a new salt and saves it to preferences
+        val salt = generateSalt()
+        val saltString = Base64.encodeToString(salt, Base64.DEFAULT)
+        val sharedPref = context.getSharedPreferences("UserLogin", Context.MODE_PRIVATE) ?: return
+        with(sharedPref.edit()) {
+            putString("salt string", saltString)
+            Log.d("EncryptorMethodsTest", saltString)
+            apply()
+        }
+    }
+
+    fun getSalt() :ByteArray {
+        val sharedPref = context.getSharedPreferences("UserLogin", Context.MODE_PRIVATE)
+        val saltString = sharedPref.getString("salt string", "")
+        val salt = Base64.decode(saltString, Base64.DEFAULT) //convert to byteArray
+        return salt
+    }
+
+
+    fun generateHash(pin:String) : String{
+        // Generates a hash string using the PBKDF2 hash algorithm
+        // Incorporates a Salt with the Password
+        // Use this for hashing the pin and checking hashes against each other
+        val salt = getSalt()
+        val iteration = 120_000
+        val keylength = 256
+        val algorithm = "PBKDF2WithHmacSHA512"
+
+        val factory: SecretKeyFactory = SecretKeyFactory.getInstance(algorithm)
+        val spec: KeySpec = PBEKeySpec(pin.toCharArray(), salt, iteration, keylength)
+        val key: SecretKey = factory.generateSecret(spec)
+        val hash: ByteArray = key.encoded
+        val hashString = Base64.encodeToString(hash, Base64.DEFAULT)
+        return hashString
+    }
+
+    fun createAndSavePinHash(pin:String) {
+        // Creates a pin hash, saves it as a string in shared preferences
+
+        val generatedPinHash = generateHash(pin)
+        val sharedPref = context.getSharedPreferences("UserLogin", Context.MODE_PRIVATE) ?: return
+        with(sharedPref.edit()) {
+            putString("hash string", generatedPinHash)
+            Log.d("EncryptorMethodsTest", "pin hash: $generatedPinHash")
+            apply()
+        }
+    }
+
+    fun getPinHash() : ByteArray {
+        // Retrieves the pin hash from sharedPreferences in the form of ByteArray
+
+        val sharedPref = context.getSharedPreferences("UserLogin", Context.MODE_PRIVATE)
+        val hashString = sharedPref.getString("hash string", "")
+        val hash = Base64.decode(hashString, Base64.DEFAULT) //convert to byteArray
+        return hash
+    }
+
+
+
+    fun verifyPin(inputPin:String): Boolean {
+        // Hashes the input pin then checks against the stored hash (Both are byte arrays!)
+        // Returns a boolean for whether the pins match
+
+        val savedHash = getPinHash()
+        val inputPinHashString = generateHash(inputPin)
+        val inputPinHash = Base64.decode(inputPinHashString, Base64.DEFAULT)
+
+        return inputPinHash.contentEquals(savedHash)
+
+    }
+
+
+
+//    private fun getKey(): SecretKey {
+//        val existingKey = keyStore.getEntry(alias, null) as? KeyStore.SecretKeyEntry
+//        return existingKey?.secretKey ?: createKey()
+//    }
+//
+//    private fun createKey(): SecretKey {
+//        val keyGenerator =
+//            KeyGenerator.getInstance(KeyProperties.KEY_ALGORITHM_AES, androidKeyStore)
+//
+//        keyGenerator.init(
+//            KeyGenParameterSpec.Builder(
+//                alias,
+//                KeyProperties.PURPOSE_ENCRYPT or KeyProperties.PURPOSE_DECRYPT
+//            )
+//                .setBlockModes(KeyProperties.BLOCK_MODE_GCM)
+//                .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_NONE)
+//                .build()
+//        )
+//
+//        return keyGenerator.generateKey()
+//    }
+//
+//    @RequiresApi(Build.VERSION_CODES.O)
+//    fun encryptText(textToEncrypt: String): String {
+//        val cipher: Cipher = Cipher.getInstance(transformationType)
+//        cipher.init(Cipher.ENCRYPT_MODE, getKey())
+//
+//        iv = cipher.getIV()
+//        val byteArray = cipher.doFinal(textToEncrypt.toByteArray())
+//        return Base64.getEncoder().encodeToString(byteArray)
+//    }
+//
+//    @RequiresApi(Build.VERSION_CODES.O)
+//    fun decryptText(text: String): String {
+//        val encryptedBytes: ByteArray = Base64.getDecoder().decode(text)
+//        val cipher = Cipher.getInstance(transformationType)
+//        val spec = GCMParameterSpec(128, iv)
+//        cipher.init(Cipher.DECRYPT_MODE, getKey(), spec)
+//
+//        return cipher.doFinal(encryptedBytes).decodeToString()
+//    }
+
+}

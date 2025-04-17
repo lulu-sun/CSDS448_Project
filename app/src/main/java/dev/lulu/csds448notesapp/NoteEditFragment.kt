@@ -11,7 +11,7 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.navigation.Navigation
-import dev.lulu.csds448notesapp.encryption.encryptorMethods
+import dev.lulu.csds448notesapp.encryption.EncryptorMethods
 import dev.lulu.csds448notesapp.noteModel.NoteModel
 
 // TODO: Rename parameter arguments, choose names that match
@@ -28,8 +28,6 @@ class NoteEditFragment : Fragment() {
     // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
-
-
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -49,7 +47,7 @@ class NoteEditFragment : Fragment() {
         val noteHeaderTextBox = view.findViewById<EditText>(R.id.noteHeaderText)
         val noteBodyTextBox = view.findViewById<EditText>(R.id.noteBodyText)
         val dbHandler = context?.let { NotesDatabase(it) }
-        val encryptorMethods = encryptorMethods()
+        val encryptorMethods = EncryptorMethods(requireContext())
 
         // Initialize the position variable
         var position:Int? = null
@@ -59,10 +57,13 @@ class NoteEditFragment : Fragment() {
             // Do these things when we came from an existing note, so update the note
             position = requireArguments().getString("position")?.toInt()
             var currentNote = NoteModel.getNotes()[position!!]
+
+            // Change the text box text to what was in the note
             noteHeaderTextBox.setText(currentNote.header)
             noteBodyTextBox.setText(currentNote.body)
 
             view.findViewById<Button>(R.id.submitNoteButton).setOnClickListener{
+                // Grab the text that was entered in
                 val noteHeaderString = noteHeaderTextBox.text.toString()
                 val noteBodyString = noteBodyTextBox.text.toString()
 
@@ -71,10 +72,15 @@ class NoteEditFragment : Fragment() {
                     currentNote.body = noteBodyString
                     dbHandler.updateNote(currentNote)
 
+                    val testEncrypt = encryptorMethods.encrypt(noteHeaderString.toByteArray())
+                    Toast.makeText(activity, testEncrypt.toString(), Toast.LENGTH_SHORT).show()
+
                     Navigation.findNavController(view).navigate(R.id.action_noteEditFragment_to_recyclerFragmentHost)
 
                 } else {
-                    Toast.makeText(activity, "Please fill out both title & body!!!", Toast.LENGTH_SHORT).show()
+                    // TODO: Need to check whether note or body is empty. probably want at least the header to be there.
+                    val errorString = "Please fill out both title & body!!!"
+                    Toast.makeText(activity, errorString, Toast.LENGTH_SHORT).show()
                 }
             }
 
@@ -105,6 +111,7 @@ class NoteEditFragment : Fragment() {
 
         return view
     }
+
 
     companion object {
         /**
