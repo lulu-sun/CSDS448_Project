@@ -26,19 +26,33 @@ class EncryptorMethods(private val context: Context) {
         private const val TRANSFORMATION = "$ALGORITHM/$BLOCK_MODE/$PADDING"
     }
 
-    fun encrypt(bytes: ByteArray): ByteArray {
-        //TODO: Test encrypt and decrypt!
+    fun encrypt(inputString:String): String {
+        // Encryption method
+        // INPUT: String
+        // OUTPUT: Base 64 encoded string (This is NOT human readable!)
+
+        val bytes = inputString.toByteArray(Charsets.UTF_8)
         cipher.init(Cipher.ENCRYPT_MODE, getKey())
         val iv = cipher.iv
         val encrypted = cipher.doFinal(bytes)
-        return iv + encrypted
+        val combinedIVAndCipherText = iv + encrypted
+        val encryptedMessage = Base64.encodeToString(combinedIVAndCipherText, Base64.DEFAULT)
+        return encryptedMessage
     }
 
-    fun decrypt(bytes: ByteArray): ByteArray {
+    fun decrypt(encryptedInput:String): String {
+        // Decryption method
+        // INPUT: Base 64 string (Output of the encryption function - NOT human readable!)
+        // OUTPUT: String (This is human readable!)
+        // Maybe need to have a check to see if user is logged in before decrypting.
+
+        val bytes = Base64.decode(encryptedInput, Base64.DEFAULT)
         val iv = bytes.copyOfRange(0, cipher.blockSize)
         val data = bytes.copyOfRange(cipher.blockSize, bytes.size)
         cipher.init(Cipher.DECRYPT_MODE, getKey(), IvParameterSpec(iv))
-        return cipher.doFinal(data)
+        val decryptedByteArray = cipher.doFinal(data)
+        val decryptedMessage = String(decryptedByteArray, Charsets.UTF_8)
+        return decryptedMessage
     }
 
     private fun getKey(): SecretKey {
@@ -93,6 +107,11 @@ class EncryptorMethods(private val context: Context) {
         val saltString = sharedPref.getString("salt string", "")
         val salt = Base64.decode(saltString, Base64.DEFAULT) //convert to byteArray
         return salt
+    }
+
+    fun checkPinExists() :Boolean{
+        val sharedPref = context.getSharedPreferences("UserLogin", Context.MODE_PRIVATE)
+        return sharedPref.contains("hash string")
     }
 
 
