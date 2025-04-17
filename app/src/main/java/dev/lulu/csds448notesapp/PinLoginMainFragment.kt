@@ -76,6 +76,9 @@ class PinLoginMainFragment : Fragment() {
         {
             val errorString = "Please enter a pin"
             Toast.makeText(activity, errorString, Toast.LENGTH_SHORT).show()
+        } else if(!encryptorMethods.checkPinExists()) {
+            val errorString = "Please register"
+            Toast.makeText(activity, errorString, Toast.LENGTH_SHORT).show()
         } else {
             val isValid = encryptorMethods.verifyPin(pinText)
 

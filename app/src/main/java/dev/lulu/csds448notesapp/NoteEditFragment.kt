@@ -72,13 +72,14 @@ class NoteEditFragment : Fragment() {
                     currentNote.body = noteBodyString
                     dbHandler.updateNote(currentNote)
 
-                    val testEncrypt = encryptorMethods.encrypt(noteHeaderString.toByteArray())
-                    Toast.makeText(activity, testEncrypt.toString(), Toast.LENGTH_SHORT).show()
+                    val testEncrypt = encryptorMethods.encrypt(noteHeaderString)
+                    val testDecrypt = encryptorMethods.decrypt(testEncrypt)
+
+                    Toast.makeText(activity, testDecrypt, Toast.LENGTH_SHORT).show()
 
                     Navigation.findNavController(view).navigate(R.id.action_noteEditFragment_to_recyclerFragmentHost)
 
                 } else {
-                    // TODO: Need to check whether note or body is empty. probably want at least the header to be there.
                     val errorString = "Please fill out both title & body!!!"
                     Toast.makeText(activity, errorString, Toast.LENGTH_SHORT).show()
                 }
