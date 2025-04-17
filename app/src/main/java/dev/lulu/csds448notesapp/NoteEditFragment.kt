@@ -107,11 +107,8 @@ class NoteEditFragment : Fragment() {
             }
         }
 
-
-
         return view
     }
-
 
     companion object {
         /**

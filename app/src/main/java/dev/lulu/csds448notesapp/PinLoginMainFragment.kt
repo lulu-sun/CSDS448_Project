@@ -11,9 +11,11 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
+import android.widget.Toast
 import androidx.navigation.Navigation
 import dev.lulu.csds448notesapp.encryption.EncryptorMethods
 import dev.lulu.csds448notesapp.hash.PinManager
+import dev.lulu.csds448notesapp.loginModel.UserLogin
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -45,6 +47,7 @@ class PinLoginMainFragment : Fragment() {
     ): View? {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_pin_login_main, container, false)
+        UserLogin.setLoginStatus(false)
 
         view.findViewById<TextView>(R.id.resetPinLink).setOnClickListener{
             // Find the text that says "Reset Pin" and make it clickable, navigates to the reset pin fragment page
@@ -68,16 +71,33 @@ class PinLoginMainFragment : Fragment() {
         //TODO: Also need to add a method to check if a saved pin even exists?
         val encryptorMethods = EncryptorMethods(context)
         val pinText = view.findViewById<EditText>(R.id.pinLoginText).text.toString()
-        val isValid = encryptorMethods.verifyPin(pinText)
-        Log.d("EncryptorMethodsTest", isValid.toString())
 
-//        if (isValid){
+        if (pinText == "")
+        {
+            val errorString = "Please enter a pin"
+            Toast.makeText(activity, errorString, Toast.LENGTH_SHORT).show()
+        } else {
+            val isValid = encryptorMethods.verifyPin(pinText)
+
+            if (isValid){
+                // If its valid, then log in!
+                UserLogin.setLoginStatus(true)
+                val successString = "Successfully logged in!"
+                Toast.makeText(activity, successString, Toast.LENGTH_SHORT).show()
+
+                activity?.let {
+                    val intent = Intent(it, NotesActivity :: class.java)
+                    it.startActivity(intent)
+                }
+            } else
+            {
+                val errorString = "Pin is not valid"
+                Toast.makeText(activity, errorString, Toast.LENGTH_SHORT).show()
+            }
+        }
+
+
 //
-//            activity?.let {
-//                val intent = Intent(it, NotesActivity :: class.java)
-//                it.startActivity(intent)
-//            }
-//        }
     }
 
     companion object {
