@@ -1,5 +1,6 @@
 package dev.lulu.csds448notesapp
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -11,12 +12,14 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import androidx.navigation.Navigation
+import dev.lulu.csds448notesapp.encryption.EncryptorMethods
 import dev.lulu.csds448notesapp.hash.PinManager
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
 private const val ARG_PARAM1 = "param1"
 private const val ARG_PARAM2 = "param2"
+
 
 /**
  * A simple [Fragment] subclass.
@@ -43,18 +46,6 @@ class PinLoginMainFragment : Fragment() {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_pin_login_main, container, false)
 
-
-        // TODO: get pin # from the view, convert its type to ByteArray
-        val enteredPin = "1234".toByteArray() // dummy code. dont hard code pins!
-
-        // TODO: call hash function from PinManager to hash this pin
-        val pinManager = PinManager() // dummy code to check the pin manager class
-        val hashed_pin = pinManager.hashFunction(enteredPin) // use the hash function to hash the pin
-        Log.d("Hash function test", hashed_pin.toString()) // print it out in the logs
-
-
-        // TODO: check the hashed pin with the expected hash
-
         view.findViewById<TextView>(R.id.resetPinLink).setOnClickListener{
             // Find the text that says "Reset Pin" and make it clickable, navigates to the reset pin fragment page
             Navigation.findNavController(view).navigate(R.id.action_pinLoginMainFragment_to_pinResetFragment)
@@ -67,13 +58,26 @@ class PinLoginMainFragment : Fragment() {
         }
 
         view.findViewById<Button>(R.id.loginButton).setOnClickListener{
-            activity?.let {
-                val intent = Intent(it, NotesActivity :: class.java)
-                it.startActivity(intent)
-            }
+            checkPinValid(view, requireContext())
         }
 
         return view
+    }
+
+    private fun checkPinValid(view:View, context: Context){
+        //TODO: Also need to add a method to check if a saved pin even exists?
+        val encryptorMethods = EncryptorMethods(context)
+        val pinText = view.findViewById<EditText>(R.id.pinLoginText).text.toString()
+        val isValid = encryptorMethods.verifyPin(pinText)
+        Log.d("EncryptorMethodsTest", isValid.toString())
+
+//        if (isValid){
+//
+//            activity?.let {
+//                val intent = Intent(it, NotesActivity :: class.java)
+//                it.startActivity(intent)
+//            }
+//        }
     }
 
     companion object {

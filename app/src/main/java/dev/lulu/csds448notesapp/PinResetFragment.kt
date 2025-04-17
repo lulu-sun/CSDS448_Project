@@ -1,12 +1,17 @@
 package dev.lulu.csds448notesapp
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.EditText
 import android.widget.TextView
+import androidx.core.content.ContentProviderCompat
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.navigation.Navigation
+import dev.lulu.csds448notesapp.encryption.EncryptorMethods
 import dev.lulu.csds448notesapp.hash.PinManager
 
 // TODO: Rename parameter arguments, choose names that match
@@ -38,14 +43,32 @@ class PinResetFragment : Fragment() {
     ): View? {
         // Inflate the layout for this fragment
         val view = inflater.inflate(R.layout.fragment_pin_reset, container, false)
-
-        // TODO: Get the pins (enter pin, confirm pin) from the view
-        // TODO: Check if the two pins are the same. If not, don't allow saving, show a toast that they are not the same
-        // TODO: If the two pins are the same, then hash the pin and save it
-
+        val encryptorMethods = EncryptorMethods(requireContext())
 
         view.findViewById<TextView>(R.id.submitNewPinButton).setOnClickListener{
-            Navigation.findNavController(view).navigate(R.id.action_pinResetFragment_to_pinLoginMainFragment)
+            // Grab the UI elements from the view
+            val firstPinText = view.findViewById<EditText>(R.id.pinLoginText2)
+            val secondPinText = view.findViewById<EditText>(R.id.pinResetSecondText)
+
+            // Grab the text from the UI elements
+            val firstPin = firstPinText.text.toString()
+            val secondPin = secondPinText.text.toString()
+
+            // Check if they are equal or not
+            if (firstPin == secondPin) {
+                // Creates and saves a salt
+                encryptorMethods.createAndSaveSalt()
+                //Creates and saves the confirmed pin hash
+                encryptorMethods.createAndSavePinHash(firstPin)
+                //TODO: Make a Toast that its successful
+
+                Navigation.findNavController(view).navigate(R.id.action_pinResetFragment_to_pinLoginMainFragment)
+
+            } else {
+                //TODO: Make a toast for error
+            }
+
+
         }
 
         return view
