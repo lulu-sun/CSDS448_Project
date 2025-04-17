@@ -49,12 +49,12 @@ class  PinResetFragment : Fragment() {
             val confirm = confirmPin.text.toString()
 
             if (pin.isEmpty() || confirm.isEmpty()) {
-                Toast.makeText(activity, "Please enter and confirm your new PIN", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "Please enter and confirm your new PIN", Toast.LENGTH_SHORT).show()
                 return
             }
 
             if (pin.length < 4) {
-                Toast.makeText(activity, "PIN must be at least 4 digits", Toast.LENGTH_SHORT).show()
+                Toast.makeText(requireContext(), "PIN must be at least 4 digits", Toast.LENGTH_SHORT).show()
                 return
             }
 

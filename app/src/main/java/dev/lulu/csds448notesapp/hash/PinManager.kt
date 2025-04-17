@@ -6,9 +6,10 @@ import java.security.MessageDigest
 import java.security.NoSuchAlgorithmException
 import java.security.SecureRandom
 import android.util.Base64
+import android.util.Log
 
 
-    object PinManager {
+object PinManager {
         private const val PREF_NAME = "secure_pin_prefs"
         private const val PIN_HASH_KEY = "pin_hash"
         private const val SALT_KEY = "pin_salt"
@@ -45,9 +46,12 @@ import android.util.Base64
             val storedHash = prefs.getString(PIN_HASH_KEY, null)
             val saltBase64 = prefs.getString(SALT_KEY, null)
 
+            Log.d("PinManager", "StoredHash: $storedHash, Salt: $saltBase64")
+
             if (storedHash != null && saltBase64 != null) {
                 val salt = Base64.decode(saltBase64, Base64.NO_WRAP)
                 val inputHash = hash(pin, salt)
+                Log.d("PinManger", "Comparing $inputHash to $storedHash")
                 return inputHash == storedHash
             }
             return false
@@ -57,9 +61,9 @@ import android.util.Base64
             return getPrefs(context).contains(PIN_HASH_KEY)
         }
 
-        fun clearPin(context: Context) {
-            getPrefs(context).edit().clear().apply()
-        }
+        //fun clearPin(context: Context) {
+          //  getPrefs(context).edit().clear().apply()
+        //}
 
 
         fun hashFunction(byteArray: ByteArray): ByteArray {

@@ -3,6 +3,9 @@ package dev.lulu.csds448notesapp
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.util.Log
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
@@ -29,6 +32,7 @@ class PinLoginActivity : AppCompatActivity() {
         enableEdgeToEdge()
         setContentView(R.layout.activity_pin_login)
 
+        Toast.makeText(this, "This is a test Toast!", Toast.LENGTH_SHORT).show()
         pinLoginText = findViewById(R.id.pinLoginText)
         loginButton = findViewById(R.id.loginButton)
         resetPinLink = findViewById(R.id.resetPinLink)
@@ -49,20 +53,23 @@ class PinLoginActivity : AppCompatActivity() {
                     "Login Successful!", 
                     Toast.LENGTH_SHORT
                 ).show()
+
+                Handler(Looper.getMainLooper()).postDelayed({
                 val intent = Intent(this, NotesActivity::class.java)
                 startActivity(intent)
+                }, 1500) //wait 1.5 seconds
+
             } else {
+                Log.d("PinLoginActivity", "Pin Validation failed")
                 Toast.makeText(this, "Invalid Pin", Toast.LENGTH_SHORT).show()
             }
         }
-
         resetPinLink.setOnClickListener {
             supportFragmentManager.beginTransaction()
                 .replace(R.id.fragmentContainerView, PinResetFragment())
                 .addToBackStack(null)
                 .commit()
         }
-
         createPinLink.setOnClickListener {
             supportFragmentManager.beginTransaction()
                 .replace(R.id.fragmentContainerView, PinResetFragment())
