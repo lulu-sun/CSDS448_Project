@@ -6,78 +6,80 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.util.Log
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.fragment.app.Fragment
 import dev.lulu.csds448notesapp.hash.PinManager
 
 
-class PinLoginMainFragment : AppCompatActivity() {
+class PinLoginMainFragment : Fragment() {
     private lateinit var pinLoginText: EditText
     private lateinit var loginButton: Button
     private lateinit var resetPinLink: TextView
     private lateinit var createPinLink: TextView
 
-    @SuppressLint("MissingInflatedId")
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        setContentView(R.layout.activity_pin_login)
+    override fun onCreateView(
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
+    ): View? {
+        return inflater.inflate(R.layout.activity_pin_login, container, false)
+    }
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
-        Toast.makeText(this, "This is a test Toast!", Toast.LENGTH_SHORT).show()
-        pinLoginText = findViewById(R.id.pinLoginText)
-        loginButton = findViewById(R.id.loginButton)
-        resetPinLink = findViewById(R.id.resetPinLink)
-        createPinLink = findViewById(R.id.createPinLink)
+        Toast.makeText(requireContext(), "This is a test Toast!", Toast.LENGTH_SHORT).show()
+
+        pinLoginText = view.findViewById(R.id.pinLoginText)
+        loginButton = view.findViewById(R.id.loginButton)
+        resetPinLink = view.findViewById(R.id.resetPinLink)
+        createPinLink = view.findViewById(R.id.createPinLink)
 
         loginButton.setOnClickListener {
             val enteredPin = pinLoginText.text.toString()
             // first check if a pin exists
-            if (!PinManager.hasPin(this)) {
-                Toast.makeText(this, "No PIN set. Please create one.", Toast.LENGTH_SHORT).show()
+            if (!PinManager.hasPin(requireContext())) {
+                Toast.makeText(requireContext(), "No PIN set. Please create one.", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
             // next validate the pin
-            if (PinManager.validatePin(this@PinLoginMainFragment, enteredPin)) {
+            if (PinManager.validatePin(requireContext(), enteredPin)) {
                 //proceed to notes screen
                 Toast.makeText(
-                    this@PinLoginMainFragment,
+                    requireContext(),
                     "Login Successful!",
                     Toast.LENGTH_SHORT
                 ).show()
 
                 Handler(Looper.getMainLooper()).postDelayed({
-                    val intent = Intent(this, NotesActivity::class.java)
+                    val intent = Intent(requireContext(), NotesActivity::class.java)
                     startActivity(intent)
                 }, 1500) //wait 1.5 seconds
 
             } else {
-                Log.d("PinLoginActivity", "Pin Validation failed")
-                Toast.makeText(this, "Invalid Pin", Toast.LENGTH_SHORT).show()
+                Log.d("PinLoginMainFragment", "Pin Validation failed")
+                Toast.makeText(requireContext(), "Invalid Pin", Toast.LENGTH_SHORT).show()
             }
         }
         resetPinLink.setOnClickListener {
-            supportFragmentManager.beginTransaction()
+            parentFragmentManager.beginTransaction()
                 .replace(R.id.fragmentContainerView, PinResetFragment())
                 .addToBackStack(null)
                 .commit()
         }
         createPinLink.setOnClickListener {
-            supportFragmentManager.beginTransaction()
+            parentFragmentManager.beginTransaction()
                 .replace(R.id.fragmentContainerView, PinResetFragment())
                 .addToBackStack(null)
                 .commit()
-        }
-
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->
-            val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
-            insets
         }
     }
 }
