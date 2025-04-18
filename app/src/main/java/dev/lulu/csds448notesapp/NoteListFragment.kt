@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
 import androidx.navigation.Navigation
 import dev.lulu.csds448notesapp.noteModel.Note
 import dev.lulu.csds448notesapp.noteModel.NoteModel
@@ -20,6 +21,10 @@ import dev.lulu.csds448notesapp.placeholder.PlaceholderContent
 class NoteListFragment : Fragment(), MyNoteRecyclerViewAdapter.AdapterDelegate {
 
     private var columnCount = 1
+    private val model = NoteModel
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var noteAdapter: MyNoteRecyclerViewAdapter
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,6 +32,8 @@ class NoteListFragment : Fragment(), MyNoteRecyclerViewAdapter.AdapterDelegate {
         arguments?.let {
             columnCount = it.getInt(ARG_COLUMN_COUNT)
         }
+
+        noteAdapter = MyNoteRecyclerViewAdapter(model)
 
         val dbHandler = context?.let { NotesDatabase(it) }
         val notes = dbHandler?.getAllNotes()
@@ -38,31 +45,43 @@ class NoteListFragment : Fragment(), MyNoteRecyclerViewAdapter.AdapterDelegate {
             Log.d("NoteModel", "Notes is null")
         }
 
-
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.fragment_note_list_list, container, false)
+        //val view = inflater.inflate(R.layout.fragment_note_list_list, container, false)
+        return inflater.inflate(R.layout.fragment_note_list_list, container, false)
 
         // Set the adapter
-        if (view is RecyclerView) {
-            with(view) {
-                layoutManager = when {
-                    columnCount <= 1 -> LinearLayoutManager(context)
-                    else -> GridLayoutManager(context, columnCount)
-                }
-                val a = MyNoteRecyclerViewAdapter()
-                a.adapterDelegate = this@NoteListFragment
-                adapter = a
+       // if (view is RecyclerView) {
+          //  with(view) {
+           //     layoutManager = when {
+           //         columnCount <= 1 -> LinearLayoutManager(context)
+            //        else -> GridLayoutManager(context, columnCount)
+            //    }
+            //    val a = MyNoteRecyclerViewAdapter()
+            //    a.adapterDelegate = this@NoteListFragment
+            //    adapter = a
 
             }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        if (view is RecyclerView) {
+            recyclerView = view
+    } else {
+        recyclerView = view.findViewById(R.id.list)
         }
 
-        return view
+
+    recyclerView.layoutManager = when {
+        columnCount <= 1 -> LinearLayoutManager(context)
+        else -> GridLayoutManager(context, columnCount)
+    }
+        recyclerView = noteAdapter
+        //return view
     }
 
     companion object {

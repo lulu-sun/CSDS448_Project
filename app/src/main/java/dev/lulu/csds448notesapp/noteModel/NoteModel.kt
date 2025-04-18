@@ -35,4 +35,5 @@ object NoteModel{
         Log.d("NoteModel", "Adding notes: ${note.header}, ${note.body}, ${note.id.toString()}")
         notes.add(note)
     }
+
 }

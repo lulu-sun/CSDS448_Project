@@ -17,11 +17,7 @@ import dev.lulu.csds448notesapp.hash.PinManager
 private const val ARG_PARAM1 = "param1"
 private const val ARG_PARAM2 = "param2"
 
-/**
- * A simple [Fragment] subclass.
- * Use the [PinResetFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
+
 class  PinResetFragment : Fragment() {
     // TODO: Rename and change types of parameters
     private lateinit var enterPin: EditText

@@ -17,7 +17,7 @@
             android:name=".NotesActivity"
             android:exported="false" />
         <activity
-            android:name=".PinLoginActivity"
+            android:name=".PinLoginMainFragment"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
