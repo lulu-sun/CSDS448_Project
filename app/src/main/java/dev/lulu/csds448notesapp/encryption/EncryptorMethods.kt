@@ -17,9 +17,10 @@ import javax.crypto.spec.PBEKeySpec
 
 class EncryptorMethods(private val context: Context) {
     private val cipher = Cipher.getInstance(TRANSFORMATION)
-    private val keyStore = KeyStore.getInstance("AndroidKeyStore").apply{
-        load(null)
-    }
+//    private val keyStore = KeyStore.getInstance("AndroidKeyStore").apply{
+//        load(null)
+//    }
+    private val key: SecretKey by lazy { createKey() }
 
     companion object {
         private const val ALGORITHM = KeyProperties.KEY_ALGORITHM_AES
@@ -41,9 +42,8 @@ class EncryptorMethods(private val context: Context) {
         // Encryption method
         // INPUT: String
         // OUTPUT: Base 64 encoded string (This is NOT human readable!)
-
         val bytes = inputString.toByteArray(Charsets.UTF_8)
-        cipher.init(Cipher.ENCRYPT_MODE, getKey())
+        cipher.init(Cipher.ENCRYPT_MODE, key)
         val iv = cipher.iv
         val encrypted = cipher.doFinal(bytes)
         val combinedIVAndCipherText = iv + encrypted
@@ -56,23 +56,22 @@ class EncryptorMethods(private val context: Context) {
         // INPUT: Base 64 string (Output of the encryption function - NOT human readable!)
         // OUTPUT: String (This is human readable!)
         // Maybe need to have a check to see if user is logged in before decrypting.
-
         val bytes = Base64.decode(encryptedInput, Base64.DEFAULT)
         val iv = bytes.copyOfRange(0, cipher.blockSize)
         val data = bytes.copyOfRange(cipher.blockSize, bytes.size)
-        cipher.init(Cipher.DECRYPT_MODE, getKey(), IvParameterSpec(iv))
+        cipher.init(Cipher.DECRYPT_MODE, key, IvParameterSpec(iv))
         val decryptedByteArray = cipher.doFinal(data)
         val decryptedMessage = String(decryptedByteArray, Charsets.UTF_8)
 
         return decryptedMessage
     }
 
-    private fun getKey(): SecretKey {
-        // Retrieve the secret key from Keystore
-        val existingKey = keyStore.getEntry("secret", null) as? KeyStore.SecretKeyEntry
-        return existingKey?.secretKey ?: createKey()
-
-    }
+//    private fun getKey(): SecretKey {
+//        // Retrieve the secret key from Keystore
+//        val existingKey = keyStore.getEntry("secret", null) as? KeyStore.SecretKeyEntry
+//        return existingKey?.secretKey ?: createKey()
+//
+//    }
 
     private fun createKey(): SecretKey {
         // Creates a key using PBKDF2 With Hmac SHA512
