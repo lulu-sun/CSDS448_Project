@@ -18,8 +18,4 @@ class PinLoginActivity : AppCompatActivity() {
         }
     }
 
-    // TODO: Get the pin hash from the UI fragment ("PinLoginMainFragment")
-
-    // TODO: Check the pin to see if it's correct. Show toast for error if not correct. If correct, log in! (ie, send intent to move to next activity)
-
 }

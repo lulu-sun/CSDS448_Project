@@ -37,8 +37,6 @@ class MyNoteRecyclerViewAdapter() : RecyclerView.Adapter<MyNoteRecyclerViewAdapt
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val note = NoteModel.getNotes()[position]
-        Log.d("NoteModel", "OnBind " + note.header)
-//        holder.idView.text = item.id
         holder.contentView.text = note.header
     }
 
@@ -51,7 +49,6 @@ class MyNoteRecyclerViewAdapter() : RecyclerView.Adapter<MyNoteRecyclerViewAdapt
 
         init {
             contentView.setOnClickListener{
-                Log.d("AdapterTest", getBindingAdapterPosition().toString())
 
                 val row = layoutPosition
                 adapterDelegate?.didSelectRow(row)

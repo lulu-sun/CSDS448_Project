@@ -108,7 +108,6 @@ class NotesDatabase(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME,
         }
         cursor.close()
 
-        Log.d("Database check", cursor.toString())
         return notesList
     }
 
@@ -130,6 +129,7 @@ class NotesDatabase(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME,
 
         val success = db.update(TABLE_NAME, values,"$ID=?", arrayOf(note.id.toString())).toLong()
         db.close()
+
         return Integer.parseInt("$success")!= -1
     }
 
@@ -142,13 +142,12 @@ class NotesDatabase(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME,
     }
 
     fun deleteAllEntries(){
+        // Should not be needed!
         val db = this.writableDatabase
         db.delete(TABLE_NAME, null, null)
-        Log.d("Database check", "Entries deleted")
     }
 
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
-        // Don't worry about this function, we don't need to call it to update db. it's automatically called when updating schema.
         val DROP_TABLE = "DROP TABLE IF EXISTS $TABLE_NAME"
         db?.execSQL(DROP_TABLE)
         if (db != null) {

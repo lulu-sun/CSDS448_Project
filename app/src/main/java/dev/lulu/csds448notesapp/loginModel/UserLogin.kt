@@ -8,8 +8,8 @@ Model that contains information about the user login status (a boolean)
  */
 
 object UserLogin {
-
-    private var isLoggedIn: Boolean = false // This keeps track of whether the user is logged in or not
+    // Tracks the user log in status. not super useful now but can be used for login timeout
+    private var isLoggedIn: Boolean = false
 
     fun setLoginStatus(status:Boolean){
         isLoggedIn = status

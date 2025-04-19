@@ -1,5 +1,7 @@
 <resources>
     <string name="app_name">lilock</string>
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="notes_entry_incomplete">Please fill out both title and body!</string>
+    <string name="delete_title">Confirm Delete</string>
+    <string name="delete_question">Are you sure you want to delete?</string>
     <string name="pins_dont_match">Pins don\'t match!</string>
 </resources>

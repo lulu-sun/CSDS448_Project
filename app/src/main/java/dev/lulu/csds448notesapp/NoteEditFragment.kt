@@ -1,5 +1,7 @@
 package dev.lulu.csds448notesapp
 
+import android.app.Dialog
+import android.content.DialogInterface
 import android.os.Build
 import android.os.Bundle
 import androidx.fragment.app.Fragment
@@ -10,6 +12,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AlertDialog
 import androidx.navigation.Navigation
 import dev.lulu.csds448notesapp.encryption.EncryptorMethods
 import dev.lulu.csds448notesapp.noteModel.NoteModel
@@ -47,8 +50,9 @@ class NoteEditFragment : Fragment() {
         val noteHeaderTextBox = view.findViewById<EditText>(R.id.noteHeaderText)
         val noteBodyTextBox = view.findViewById<EditText>(R.id.noteBodyText)
         val dbHandler = context?.let { NotesDatabase(it) }
-        val encryptorMethods = EncryptorMethods(requireContext())
 
+        val deleteButton = view.findViewById<Button>(R.id.deleteButton)
+        val submitButton = view.findViewById<Button>(R.id.submitNoteButton)
         // Initialize the position variable
         var position:Int? = null
 
@@ -62,33 +66,57 @@ class NoteEditFragment : Fragment() {
             noteHeaderTextBox.setText(currentNote.header)
             noteBodyTextBox.setText(currentNote.body)
 
-            view.findViewById<Button>(R.id.submitNoteButton).setOnClickListener{
+            submitButton.setOnClickListener{
                 // Grab the text that was entered in
                 val noteHeaderString = noteHeaderTextBox.text.toString()
                 val noteBodyString = noteBodyTextBox.text.toString()
 
+                // Check that both textboxes contain values
                 if (noteHeaderString != "" && noteBodyString!= "" && dbHandler != null) {
                     currentNote.header = noteHeaderString
                     currentNote.body = noteBodyString
+                    // Update the note in the database!
                     dbHandler.updateNote(currentNote)
 
-                    val testEncrypt = encryptorMethods.encrypt(noteHeaderString)
-                    val testDecrypt = encryptorMethods.decrypt(testEncrypt)
-
-                    Toast.makeText(activity, testDecrypt, Toast.LENGTH_SHORT).show()
+                    Toast.makeText(activity, "Note updated successfully!", Toast.LENGTH_SHORT).show()
 
                     Navigation.findNavController(view).navigate(R.id.action_noteEditFragment_to_recyclerFragmentHost)
 
                 } else {
-                    val errorString = "Please fill out both title & body!!!"
-                    Toast.makeText(activity, errorString, Toast.LENGTH_SHORT).show()
+                    Toast.makeText(activity, R.string.notes_entry_incomplete, Toast.LENGTH_SHORT).show()
                 }
             }
 
-            view.findViewById<Button>(R.id.deleteButton).setOnClickListener{
-                dbHandler?.deleteNote(currentNote.id)
-                Navigation.findNavController(view).navigate(R.id.action_noteEditFragment_to_recyclerFragmentHost)
+            deleteButton.setOnClickListener{
+                // Do not allow spam-clicking the button!
+                deleteButton.isEnabled = false
 
+                val builder:AlertDialog.Builder = AlertDialog.Builder(requireContext())
+
+                builder.setTitle(R.string.delete_title)
+                builder.setMessage(R.string.delete_question)
+
+                // Cancel enables the delete button again
+                builder.setPositiveButton("Cancel", object : DialogInterface.OnClickListener {
+                    @Override
+                    override fun onClick(p0: DialogInterface?, p1: Int) {
+                        deleteButton.isEnabled = true
+                    }
+                })
+
+                // "Yes" Allows the deletion to go through.
+                builder.setNegativeButton("Yes", object : DialogInterface.OnClickListener {
+                    @Override
+                    override fun onClick(p0: DialogInterface?, p1: Int) {
+                        deleteButton.isEnabled = true
+                        dbHandler?.deleteNote(currentNote.id)
+                        Toast.makeText(activity, "Note deleted.", Toast.LENGTH_SHORT).show()
+                        Navigation.findNavController(view).navigate(R.id.action_noteEditFragment_to_recyclerFragmentHost)
+                    }
+                })
+
+                val dialog = builder.create()
+                dialog.show()
             }
 
         } else {
@@ -102,7 +130,7 @@ class NoteEditFragment : Fragment() {
                     Navigation.findNavController(view).navigate(R.id.action_noteEditFragment_to_recyclerFragmentHost)
 
                 } else {
-                    Toast.makeText(activity, "Please fill out both title & body!", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(activity, R.string.notes_entry_incomplete, Toast.LENGTH_SHORT).show()
                 }
 
             }

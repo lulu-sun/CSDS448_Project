@@ -18,12 +18,11 @@ object NoteModel{
 
     public fun getNotes() : MutableList<Note> {
         // public function, "getter" for the notes
-        Log.d("NoteModel", "getting notes")
         return notes
     }
 
     public fun resetNotes(list: MutableList<Note>){
-        Log.d("NoteModel", "resetting notes")
+        // Reset the notes
         this.notes = list
     }
 
@@ -32,7 +31,7 @@ object NoteModel{
     }
 
     public fun putNote(note:Note) {
-        Log.d("NoteModel", "Adding notes: ${note.header}, ${note.body}, ${note.id.toString()}")
+        // Add a note to the notemodel
         notes.add(note)
     }
 }
