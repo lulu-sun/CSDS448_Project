@@ -1,45 +1,88 @@
 package dev.lulu.csds448notesapp.hash
 
-import android.preference.PreferenceManager
-import android.security.keystore.KeyGenParameterSpec
-import android.util.Base64
-import java.security.KeyStore
+import android.content.Context
+import android.content.SharedPreferences
 import java.security.MessageDigest
 import java.security.NoSuchAlgorithmException
-
-class PinManager () {
-
-    fun savePin(pin:String){
-        val hashedPin = hashFunction(pin.toByteArray())
-        val encodedHash = Base64.encodeToString(hashedPin, Base64.DEFAULT)
-        //TODO: put the pin somewhere????
+import java.security.SecureRandom
+import android.util.Base64
+import android.util.Log
 
 
-    }
+object PinManager {
+        private const val PREF_NAME = "secure_pin_prefs"
+        private const val PIN_HASH_KEY = "pin_hash"
+        private const val SALT_KEY = "pin_salt"
 
-    fun checkPin(pin:String){
-        val hashedPin = hashFunction(pin.toByteArray())
-        //TODO: check this against saved hash?
-    }
+        private fun getPrefs(context: Context): SharedPreferences {
+            return context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE)
+        }
 
-    fun hashFunction(byteArray: ByteArray):ByteArray {
-        /*
+        private fun generateSalt(): ByteArray {
+            val salt = ByteArray(16)
+            SecureRandom().nextBytes(salt)
+            return salt
+        }
+
+        private fun hash(pin: String, salt: ByteArray): String {
+            val digest = MessageDigest.getInstance("SHA-256")
+            digest.update(salt)
+            val hash = digest.digest(pin.toByteArray())
+            return Base64.encodeToString(hash, Base64.NO_WRAP)
+        }
+
+        fun savePin(context: Context, pin: String) {
+            val salt = generateSalt()
+            val hash = hash(pin, salt)
+            val prefs = getPrefs(context)
+            prefs.edit()
+                .putString(PIN_HASH_KEY, hash)
+                .putString(SALT_KEY, Base64.encodeToString(salt, Base64.NO_WRAP))
+                .apply()
+        }
+
+        fun validatePin(context: Context, pin: String): Boolean {
+            val prefs = getPrefs(context)
+            val storedHash = prefs.getString(PIN_HASH_KEY, null)
+            val saltBase64 = prefs.getString(SALT_KEY, null)
+
+            Log.d("PinManager", "StoredHash: $storedHash, Salt: $saltBase64")
+
+            if (storedHash != null && saltBase64 != null) {
+                val salt = Base64.decode(saltBase64, Base64.NO_WRAP)
+                val inputHash = hash(pin, salt)
+                Log.d("PinManger", "Comparing $inputHash to $storedHash")
+                return inputHash == storedHash
+            }
+            return false
+        }
+
+        fun hasPin(context: Context): Boolean {
+            return getPrefs(context).contains(PIN_HASH_KEY)
+        }
+
+        //fun clearPin(context: Context) {
+          //  getPrefs(context).edit().clear().apply()
+        //}
+
+
+        fun hashFunction(byteArray: ByteArray): ByteArray {
+            /*
         Input: pin as a byteArray
         Output: the hashed pin
 
         this function uses the SHA-256 hash function method from an API to securely hash a value
          */
 
-        val digest = try {
-            MessageDigest.getInstance("SHA-256") // This is a one-way hash function
-        } catch (e: NoSuchAlgorithmException) {
-            MessageDigest.getInstance("SHA")
-        }
+            val digest = try {
+                MessageDigest.getInstance("SHA-256") // This is a one-way hash function
+            } catch (e: NoSuchAlgorithmException) {
+                MessageDigest.getInstance("SHA")
+            }
 
-        return with(digest) {
-            update(byteArray)
-            digest()
+            return with(digest) {
+                update(byteArray)
+                digest()
+            }
         }
     }
-
-}

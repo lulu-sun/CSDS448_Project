@@ -1,10 +1,11 @@
 package dev.lulu.csds448notesapp
 
-import android.content.Context
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,114 +13,73 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
 import android.widget.Toast
-import androidx.navigation.Navigation
-import dev.lulu.csds448notesapp.encryption.EncryptorMethods
+import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContentProviderCompat.requireContext
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.fragment.app.Fragment
 import dev.lulu.csds448notesapp.hash.PinManager
-import dev.lulu.csds448notesapp.loginModel.UserLogin
-
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
 
 
-/**
- * A simple [Fragment] subclass.
- * Use the [PinLoginMainFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class PinLoginMainFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
-    }
+    private lateinit var pinLoginText: EditText
+    private lateinit var loginButton: Button
+    private lateinit var resetPinLink: TextView
+    private lateinit var createPinLink: TextView
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
-        val view = inflater.inflate(R.layout.fragment_pin_login_main, container, false)
-        UserLogin.setLoginStatus(false)
-
-        view.findViewById<TextView>(R.id.resetPinLink).setOnClickListener{
-            // Find the text that says "Reset Pin" and make it clickable, navigates to the reset pin fragment page
-            Navigation.findNavController(view).navigate(R.id.action_pinLoginMainFragment_to_pinResetFragment)
-        }
-
-        view.findViewById<TextView>(R.id.createPinLink).setOnClickListener{
-            // Find the text that says "Create Pin" and make it clickable, navigates to the reset pin fragment page
-            // Right now its the same page for both Reset and Create pin links, for simplicity.
-            Navigation.findNavController(view).navigate(R.id.action_pinLoginMainFragment_to_pinResetFragment)
-        }
-
-        view.findViewById<Button>(R.id.loginButton).setOnClickListener{
-            checkPinValid(view, requireContext())
-        }
-
-        return view
+        return inflater.inflate(R.layout.activity_pin_login, container, false)
     }
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
-    private fun checkPinValid(view:View, context: Context){
-        //TODO: Also need to add a method to check if a saved pin even exists?
-        val encryptorMethods = EncryptorMethods(context)
-        val pinText = view.findViewById<EditText>(R.id.pinLoginText).text.toString()
+        Toast.makeText(requireContext(), "This is a test Toast!", Toast.LENGTH_SHORT).show()
 
-        if (pinText == "")
-        {
-            val errorString = "Please enter a pin"
-            Toast.makeText(activity, errorString, Toast.LENGTH_SHORT).show()
-        } else if(!encryptorMethods.checkPinExists()) {
-            val errorString = "Please register"
-            Toast.makeText(activity, errorString, Toast.LENGTH_SHORT).show()
-        } else {
-            val isValid = encryptorMethods.verifyPin(pinText)
+        pinLoginText = view.findViewById(R.id.pinLoginText)
+        loginButton = view.findViewById(R.id.loginButton)
+        resetPinLink = view.findViewById(R.id.resetPinLink)
+        createPinLink = view.findViewById(R.id.createPinLink)
 
-            if (isValid){
-                // If its valid, then log in!
-                UserLogin.setLoginStatus(true)
-                val successString = "Successfully logged in!"
-                Toast.makeText(activity, successString, Toast.LENGTH_SHORT).show()
+        loginButton.setOnClickListener {
+            val enteredPin = pinLoginText.text.toString()
+            // first check if a pin exists
+            if (!PinManager.hasPin(requireContext())) {
+                Toast.makeText(requireContext(), "No PIN set. Please create one.", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            // next validate the pin
+            if (PinManager.validatePin(requireContext(), enteredPin)) {
+                //proceed to notes screen
+                Toast.makeText(
+                    requireContext(),
+                    "Login Successful!",
+                    Toast.LENGTH_SHORT
+                ).show()
 
-                activity?.let {
-                    val intent = Intent(it, NotesActivity :: class.java)
-                    it.startActivity(intent)
-                }
-            } else
-            {
-                val errorString = "Pin is not valid"
-                Toast.makeText(activity, errorString, Toast.LENGTH_SHORT).show()
+                Handler(Looper.getMainLooper()).postDelayed({
+                    val intent = Intent(requireContext(), NotesActivity::class.java)
+                    startActivity(intent)
+                }, 1500) //wait 1.5 seconds
+
+            } else {
+                Log.d("PinLoginMainFragment", "Pin Validation failed")
+                Toast.makeText(requireContext(), "Invalid Pin", Toast.LENGTH_SHORT).show()
             }
         }
-
-
-//
-    }
-
-    companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment PinLoginMainFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic
-        fun newInstance(param1: String, param2: String) =
-            PinLoginMainFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
-                }
-            }
+        resetPinLink.setOnClickListener {
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.fragmentContainerView, PinResetFragment())
+                .addToBackStack(null)
+                .commit()
+        }
+        createPinLink.setOnClickListener {
+            parentFragmentManager.beginTransaction()
+                .replace(R.id.fragmentContainerView, PinResetFragment())
+                .addToBackStack(null)
+                .commit()
+        }
     }
 }
